@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'Appbar.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -6,25 +9,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  BuildContext buildContext;
   @override
   Widget build(BuildContext context) {
+    this.buildContext = context;
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(0),
-          child: AppBar(
-            // Here we create one to set status bar color
-            backgroundColor: Colors.orange[
-                400], // Set any color of status bar you want; or it defaults to your theme's primary color
-          )),
+      appBar: Appbar().build(),
       body: Padding(
         padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
         child: ListView(
           children: [
-            SingleCard("The title", "The subtitle", 10000).item(),
-            SingleCard("The title", "The subtitle", 7000).item(),
-            SingleCard("The title", "The subtitle", 50000).item(),
-            SingleCard("The title", "The subtitle", 40000).item(),
+            SingleCard(buildContext, "The title", "The subtitle", 10000).render(),
+            SingleCard(buildContext, "The title", "The subtitle", 7000).render(),
+            SingleCard(buildContext, "The title", "The subtitle", 50000).render(),
+            SingleCard(buildContext, "The title", "The subtitle", 40000).render(),
           ],
         ),
       ),
@@ -35,14 +34,16 @@ class _HomeState extends State<Home> {
 class SingleCard {
   String title, subTitle;
   double price;
+  BuildContext buildContext;
 
-  SingleCard(String title, String subTitle, double price) {
+  SingleCard(BuildContext ctx, String title, String subTitle, double price) {
+    this.buildContext = ctx;
     this.title = title;
     this.subTitle = subTitle;
     this.price = price;
   }
 
-  Card item() {
+  Card render() {
     return Card(
       margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
       clipBehavior: Clip.antiAlias,
@@ -54,6 +55,12 @@ class SingleCard {
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              this.subTitle,
+              style: TextStyle(
+                fontSize: 16,
               ),
             ),
 
@@ -72,7 +79,12 @@ class SingleCard {
                 color: Colors.green[800],
               ),
             ),
-          )
+            trailing: FlatButton(
+              onPressed: buyNow,
+              child: Text("Buy Now"),
+              color: Colors.orange[400],
+            )
+          ),
         ],
       ),
     );
@@ -81,4 +93,11 @@ class SingleCard {
   String getPrice() {
     return this.price.toString();
   }
+
+  void buyNow() {
+    Navigator.of(this.buildContext).pushNamed('/cart');
+  }
+
+
+
 }
