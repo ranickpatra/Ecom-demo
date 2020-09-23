@@ -1,3 +1,4 @@
+import 'package:ecom_app/http_service.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatelessWidget {
@@ -47,7 +48,11 @@ class Login extends StatelessWidget {
                   color: Colors.green,
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pushNamed('/home');
+                      HttpService().login("r@g.com", '1234').then((value) {
+                        if(value.status) {
+                          Navigator.pushNamed(context, '/home');
+                        }
+                      });
                     },
                     child: Center(
                       child: Text(

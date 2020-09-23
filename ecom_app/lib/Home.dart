@@ -1,3 +1,5 @@
+import 'package:ecom_app/http_service.dart';
+import 'package:ecom_app/product.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -18,13 +20,20 @@ class _HomeState extends State<Home> {
       appBar: Appbar().build(),
       body: Padding(
         padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-        child: ListView(
-          children: [
-            SingleCard(buildContext, "The title", "The subtitle", 10000).render(),
-            SingleCard(buildContext, "The title", "The subtitle", 7000).render(),
-            SingleCard(buildContext, "The title", "The subtitle", 50000).render(),
-            SingleCard(buildContext, "The title", "The subtitle", 40000).render(),
-          ],
+        child: FutureBuilder(
+          future: HttpService().getProducts(),
+          builder: (context, snapshot) {
+            List<Product> data = snapshot.data;
+            return snapshot.hasData ? ListView.builder(
+              itemCount: data.length,
+                itemBuilder: (context, int index) {
+                  return SingleCard(context, data[index].ProdDesc, data[index].ProdTag, data[index].PurRate.toDouble(), data[index].ImgUrl).render();
+                }
+            ) :
+            Center(
+              child: CircularProgressIndicator(),
+            );
+          },
         ),
       ),
     );
@@ -35,12 +44,14 @@ class SingleCard {
   String title, subTitle;
   double price;
   BuildContext buildContext;
+  String imageUrl;
 
-  SingleCard(BuildContext ctx, String title, String subTitle, double price) {
+  SingleCard(BuildContext ctx, String title, String subTitle, double price, String imageUrl) {
     this.buildContext = ctx;
     this.title = title;
     this.subTitle = subTitle;
     this.price = price;
+    this.imageUrl = imageUrl;
   }
 
   Card render() {
@@ -66,8 +77,7 @@ class SingleCard {
 
           ),
           Image(
-            image: NetworkImage(
-                'https://thenationpress.net/en/imgs/2020/08/1597490497blobid0.jpg'),
+            image: NetworkImage(this.imageUrl),
           ),
           ListTile(
             title: Text(
@@ -97,7 +107,5 @@ class SingleCard {
   void buyNow() {
     Navigator.of(this.buildContext).pushNamed('/cart');
   }
-
-
 
 }

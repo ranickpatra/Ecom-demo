@@ -84,9 +84,10 @@ app.get('/login', (req, res) => {
 // products
 app.get('/products', (req, res) => {
     let query = "select * from "+TABLE_PRODMAST;
+    console.log("Products called");
 
     connection.query(query, (err, result) => {
-        if (err) return res.json({});
+        if (err) return res.json([]);
         res.json(result);
     });
 });
@@ -124,7 +125,7 @@ app.get('/orders', (req, res) => {
     
 
     connection.query(query, (err, result) => {
-        if (err) throw err; //return res.json({});
+        if (err) return res.json([]);
         res.json(result)        
     });
 });
