@@ -51,5 +51,5 @@ node api.js
 `http://localhost:8000/add-cart?cust_code=CUSTOMER_CODE&prod_code=PRODUCT_CODE&order_amt=ORDER_AMMOUNT&net_amt=NET_AMMOUNT`
 
 **Show All Orders**
-`localhost:8000/orders?cust_code=CUSTOMER_CODE`
+`http://localhost:8000/orders?cust_code=CUSTOMER_CODE`
 
