@@ -1,17 +1,28 @@
+import 'package:ecom_app/cart.dart';
 import 'package:ecom_app/http_service.dart';
 import 'package:ecom_app/product.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'Appbar.dart';
 
 class Home extends StatefulWidget {
+  int customerId;
+
+  Home(this.customerId);
+
   @override
-  _HomeState createState() => _HomeState();
+  _HomeState createState() => _HomeState(this.customerId);
 }
 
 class _HomeState extends State<Home> {
   BuildContext buildContext;
+  int customerId;
+
+
+  _HomeState(this.customerId);
+
   @override
   Widget build(BuildContext context) {
     this.buildContext = context;
@@ -24,15 +35,15 @@ class _HomeState extends State<Home> {
           future: HttpService().getProducts(),
           builder: (context, snapshot) {
             List<Product> data = snapshot.data;
-            return snapshot.hasData ? ListView.builder(
-              itemCount: data.length,
-                itemBuilder: (context, int index) {
-                  return SingleCard(context, data[index].ProdDesc, data[index].ProdTag, data[index].PurRate.toDouble(), data[index].ImgUrl).render();
-                }
-            ) :
-            Center(
-              child: CircularProgressIndicator(),
-            );
+            return snapshot.hasData
+                ? ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, int index) {
+                      return SingleCard(context, this.customerId, data[index]).render();
+                    })
+                : Center(
+                    child: CircularProgressIndicator(),
+                  );
           },
         ),
       ),
@@ -41,17 +52,21 @@ class _HomeState extends State<Home> {
 }
 
 class SingleCard {
+  Product product;
   String title, subTitle;
-  double price;
+  int price;
   BuildContext buildContext;
   String imageUrl;
+  int customerId;
 
-  SingleCard(BuildContext ctx, String title, String subTitle, double price, String imageUrl) {
+  SingleCard(BuildContext ctx, int customerId, Product product) {
     this.buildContext = ctx;
-    this.title = title;
-    this.subTitle = subTitle;
-    this.price = price;
-    this.imageUrl = imageUrl;
+    this.customerId = customerId;
+    this.product = product;
+    this.title = product.ProdDesc;
+    this.subTitle = product.ProdTag;
+    this.price = product.PurRate;
+    this.imageUrl = product.ImgUrl;
   }
 
   Card render() {
@@ -74,27 +89,25 @@ class SingleCard {
                 fontSize: 16,
               ),
             ),
-
           ),
           Image(
             image: NetworkImage(this.imageUrl),
           ),
           ListTile(
-            title: Text(
-              "₹ " + this.getPrice(),
-              textAlign: TextAlign.justify,
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w500,
-                color: Colors.green[800],
+              title: Text(
+                "₹ " + this.getPrice(),
+                textAlign: TextAlign.justify,
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.green[800],
+                ),
               ),
-            ),
-            trailing: FlatButton(
-              onPressed: buyNow,
-              child: Text("Buy Now"),
-              color: Colors.orange[400],
-            )
-          ),
+              trailing: FlatButton(
+                onPressed: buyNow,
+                child: Text("Buy Now"),
+                color: Colors.orange[400],
+              )),
         ],
       ),
     );
@@ -105,7 +118,25 @@ class SingleCard {
   }
 
   void buyNow() {
-    Navigator.of(this.buildContext).pushNamed('/cart');
-  }
+    // Navigator.of(this.buildContext).pushNamed('/cart');
+    HttpService().addToCart(this.customerId, product).then((value) {
+      dynamic toast = (String txt) => Fluttertoast.showToast(
+          msg: txt,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.orange[300],
+          textColor: Colors.white,
+          fontSize: 16.6
+      );
 
+      if (value.status) {
+        toast("Order added");
+        Navigator.of(this.buildContext).push(MaterialPageRoute(
+          builder: (context) => Cart(this.customerId),
+        ));
+      } else {
+        toast("Order failed");
+      }
+    });
+  }
 }

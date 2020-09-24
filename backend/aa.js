@@ -73,19 +73,23 @@ app.get('/login', (req, res) => {
     let query = "select * from "+TABLE_CUSTMAST+" where CustEmail = '"+req.query.email+"' and CustPwd = '"+req.query.pass+"'";
 
     connection.query(query, (err, result) => {
-        if (err) return res.json({'stat': false});
+        console.log(result);
+        if (err || result.length==0) return res.json({
+            'stat': false,
+            'id': -1
+        });
         res.json({
-            'stat': result.length != 0
+            'stat': result.length != 0,
+            'id': result[0].CustCode
         });
     });
 });
 
 
+
 // products
 app.get('/products', (req, res) => {
     let query = "select * from "+TABLE_PRODMAST;
-    console.log("Products called");
-
     connection.query(query, (err, result) => {
         if (err) return res.json([]);
         res.json(result);
@@ -94,19 +98,18 @@ app.get('/products', (req, res) => {
 
 // product
 app.get('/product', (req, res) => {
-    let query = "select * from "+TABLE_PRODMAST+" where ProdCode = '"+req.query.prod_code+"'";
+    let query = "select * from "+TABLE_PRODMAST+" where ProdCode = "+req.query.prod_code+"";
 
     connection.query(query, (err, result) => {
         if (err) return res.json({});
-        res.json(result);
+        res.json(result[0]);
     });
 });
 
 // add to cart
 app.get('/add-cart', (req, res) => {
     let query = "insert into "+TABLE_ORDERMAST+" (CustCode, ProdCode, OrderAmt, NetAmt) "+
-                                        "values ("+req.query.cust_code+", "+req.query.prod_code+", "+req.query.order_amt+", "+req.query.net_amt+")";
-    
+                "values ("+req.query.cust_code+", "+req.query.prod_code+", "+req.query.order_amt+", "+req.query.net_amt+")";
 
     connection.query(query, (err, result) => {
         if (err) return res.json({
