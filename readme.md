@@ -36,7 +36,7 @@ node api.js
 ```
 ----------------
 
-## API end point
+## API Endpoint
 
 **Login:**
 `http://localhost:8000/login?email=EMAIL_ADDRESS&pass=PASSWORD`
